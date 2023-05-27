@@ -1,25 +1,26 @@
-import openai
-import re
+"""Text interaction with OpenAI API and Hugging Face models.""" ""
 import os
+import re
+
+import openai
 from dotenv import load_dotenv
 from transformers import pipeline
 
 # Load environment variables from .env file
-load_dotenv()
+load_dotenv("config/.env")
 
 # Get OpenAI API key from environment variables
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-
 def generate(prompt, use_openai=True):
     """
-    Generates a text completion for a given prompt using either the OpenAI GPT-3 API or the Hugging Face GPT-3 model.
-    
+    Generate a text completion for a given prompt using either the OpenAI GPT-3 API or the Hugging Face GPT-3 model.
+
     Args:
     - prompt (str): The text prompt to generate a completion for.
     - use_openai (bool): A boolean flag indicating whether to use the OpenAI API (True) or the Hugging Face GPT-3 model (False).
-    
+
     Returns:
     - str: The generated text completion.
     """
@@ -38,34 +39,45 @@ def generate(prompt, use_openai=True):
         return message.strip()
 
     else:
-        hf_generator = pipeline('text-generation', model='EleutherAI/gpt-neo-1.3B', device=0)
-        output = hf_generator(prompt, max_length=len(prompt)+128, do_sample=True)
-        out = output[0]['generated_text']
-        if '### Response:' in out:
-            out = out.split('### Response:')[1]
-        if '### Instruction:' in out:
-            out = out.split('### Instruction:')[0]
+        hf_generator = pipeline(
+            "text-generation", model="EleutherAI/gpt-neo-1.3B", device=0
+        )
+        output = hf_generator(prompt, max_length=len(prompt) + 128, do_sample=True)
+        out = output[0]["generated_text"]
+        if "### Response:" in out:
+            out = out.split("### Response:")[1]
+        if "### Instruction:" in out:
+            out = out.split("### Instruction:")[0]
         return out.strip()
 
 
 def get_rating(x):
     """
-    Extracts a rating from a string.
-    
+    Extract a rating from a string.
+
     Args:
     - x (str): The string to extract the rating from.
-    
+
     Returns:
     - int: The rating extracted from the string, or None if no rating is found.
     """
-    nums = [int(i) for i in re.findall(r'\d+', x)]
-    if len(nums)>0:
+    nums = [int(i) for i in re.findall(r"\d+", x)]
+    if len(nums) > 0:
         return min(nums)
     else:
         return None
 
+
 # Summarize simulation loop with OpenAI GPT-4
 def summarize_simulation(log_output):
+    """Summarize the simulation loop.
+
+    Args:
+        log_output (str): The log output to summarize.
+
+    Returns:
+        str: The summary of the simulation loop.
+    """
     prompt = f"Summarize the simulation loop:\n\n{log_output}"
     response = generate(prompt)
     return response

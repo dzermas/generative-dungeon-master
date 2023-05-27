@@ -1,29 +1,39 @@
-# Generative Large Language Models for Human-Like Behavior
+# generative-dungeon-master
+Implementation of ideas from generative agents using the power of LLM, T2S, and S2T networks.
 
-This repository includes a working version of the type of model described in Generative Agents: Interactive Simulacra of Human Behavior.
+## Linux Installation
 
-## Setup
+You can locally install the package with `poetry`. This allows fast iteration and experimentation.
 
-The models are distributed as notebooks that are easy to run locally, or on Google Colab. We recommend the use of Jupyter Lab if running locally. The notebook(s) should work as-is on Google Colab.
+1. [Setup SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) for access to the repository.
 
-# How to Use
+2. Install ``pyenv`` - a really nice way to manage/install specific Python versions on Linux systems.
 
-* The most stable model is available at https://github.com/mkturkcan/generative-agents/tree/main/notebook/Release.
-* WIP models with the latest features will be available in https://github.com/mkturkcan/generative-agents/tree/main/notebook/WIP.
-* A WIP library is available under https://github.com/mkturkcan/generative-agents/tree/main/game_simulation.
+    i) Make sure you install the [build dependencies](https://github.com/pyenv/pyenv/wiki/Common-build-problems#prerequisites) for your system.
 
-## Model
+    ii) Run
+    ```
+    curl https://pyenv.run | bash
+    ```
+    iii) Restart your shell so the path changes take effect.
+    ```
+    exec $SHELL
+    ```
+    iv) Install a specific Python version (e.g. 3.8.3) with
+    ```
+    pyenv install 3.8.3
+    ```
+3. Install [`poetry`](https://python-poetry.org/docs/#installing-with-the-official-installer) for your OS.
 
-The current model is a simulation of the town of Phandalin from an introductory D&D 5e adventure. This setting is chosen as it is much more free form than the simple scenario described in the original paper.
-
-## Limitations
-
-The model, as described in the paper, requires access to a very high quality instruction model such as GPT-3. However, the model also requires many high-context queries to work, making it expensive to run. As such, in this work we use low-parameter, locally runnable models instead. 
-
-We expect that with the advent of the next generation of instruction-tuned models, the model in this repo will perform better.
-
-## Future Steps
-
-* Summarize agent decisions as emojis. (WIP)
-* Create a family of questions to compress agent contexts better.
-* Check if the agent contexts are compressed well with an another layer of prompts.
+4. Install package
+    ```
+    git clone git@github.com:dzermas/generative-dungeon-master.git
+    cd generative-dungeon-master
+    pyenv install $(cat .python-version)
+    poetry install
+    ```
+        
+5. Set up ``pre-commit`` to ensure all commits to adhere to **black** and **PEP8** style conventions.
+    ```
+    poetry run pre-commit install
+    ```
