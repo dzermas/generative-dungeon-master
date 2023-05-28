@@ -3,7 +3,7 @@ Implementation of ideas from generative agents using the power of LLM, T2S, and 
 
 ## Linux Installation
 
-You can locally install the package with `poetry`. This allows fast iteration and experimentation.
+You can install the package locally with `poetry`. This allows fast iteration and experimentation.
 
 1. [Setup SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) for access to the repository.
 
@@ -52,7 +52,21 @@ poetry run generativedm generate-world
 
 ## Docker
 
-The default docker image is a lightweight `python:3.8-slim-buster`. If an NVidia GPU with CUDA is available, the `nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04` is usualy a good image choice to start from. Notice that in that case, the `Dockerfile` will need to change and have `torch` be installed via poetry with `poetry install -E pytorch` instead of the current `pip3` way. Build with 
+The default docker image supports a CPU deplyment with a lightweight `python:3.8-slim-buster` (less than 3GB). 
+
+If an NVidia GPU with CUDA is available, the `nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04` is usualy a good image choice (~8GB) to start from. The `Dockerfile` will need to change and the lines
+```
+# Install package:
+RUN poetry install
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
+will have to be replaced by
+```
+# Install package:
+RUN poetry install -E pytorch
+```
+
+Build with 
 ```
 docker build -t gdm-image .
 ``` 
@@ -63,7 +77,7 @@ Use the docker image with
 docker run --rm -ti gdm-image poetry run generativedm generate-world
 ```
 
-Note that since the text-generation model needs to be downloaded, using docker will have to download the model each time the image is opened. Maybe you should avoid using the `--rm` and have a persistent container.
+Note that since the text-generation model needs to be downloaded, using docker will have to download the model each time the image is opened. Maybe you should avoid using the `--rm` and have a persistent container or add a presistent volume.
 
 ## LLM Models
 
