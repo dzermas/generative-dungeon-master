@@ -37,3 +37,32 @@ You can locally install the package with `poetry`. This allows fast iteration an
     ```
     poetry run pre-commit install
     ```
+
+## Execute locally with poetry
+
+To see all options, simply use the `CLI` from the poetry environment and run:
+```
+poetry run generativedm --help
+```
+
+The world generation with the default parameters can be executed as:
+```
+poetry run generativedm generate-world
+```
+
+## Docker
+
+The default docker image is a lightweight `python:3.8-slim-buster`. If an NVidia GPU with CUDA is available, the `nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04` is usualy a good image choice to start from. Notice that in that case, the `Dockerfile` will need to change and have `torch` be installed via poetry with `poetry install -E pytorch` instead of the current `pip3` way. Build with 
+```
+docker build -t gdm-image .
+``` 
+from within the repo root folder.
+
+Use the docker image with
+```
+docker run --rm -ti gdm-image poetry run generativedm generate-world
+```
+
+## LLM Models
+
+The code can either use an OpenAI account for inference with ChatGPT4, or HuggingFace for local inference with an open network like Alpaca. The OpenAI account charges real money for inferences and it can start getting expensive especially when the code base is not efficient enough. By default, the `use_openai` parameter in the `main.py` script is set to `False`. The HuggingFace model is downloaded locally in the `~/.cache/hub/` folder the first time it is called by the `generate()` function and every subsequent use happens by loading that local model. We can experiment with other models based on the inference capabilities of the local machines. The model selection is exposed for easy experimentation.

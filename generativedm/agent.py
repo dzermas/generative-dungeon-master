@@ -41,7 +41,7 @@ class Agent:
         Rates different locations in the simulated environment based on the agent's preferences and experiences.
     """
 
-    def __init__(self, name, description, starting_location, world_graph, use_openai):
+    def __init__(self, name, description, starting_location, world_graph, llm_engine):
         """Initialize an Agent object.
 
         Args:
@@ -49,7 +49,7 @@ class Agent:
             description (str): The agent's description.
             starting_location (str): The starting location of the agent.
             world_graph (_type_): The graph representing the simulated environment.
-            use_openai (bool): Decide whether to use OpenAI API to generate text.
+            llm_engine (LLMEngine): Parameters related to the LLM that generates the text.
         """
         self.name = name
         self.description = description
@@ -59,7 +59,7 @@ class Agent:
         self.compressed_memories = []
         self.plans = ""
         self.world_graph = world_graph
-        self.use_openai = use_openai
+        self.llm_engine = llm_engine
 
     def __repr__(self):  # noqa
         return f"Agent({self.name}, {self.description}, {self.location})"
@@ -78,7 +78,7 @@ class Agent:
         prompt = "You are {}. The following is your description: {} You just woke up. What is your goal for today? Write it down in an hourly basis, starting at {}:00. Write only one or two very short sentences. Be very brief. Use at most 50 words.".format(
             self.name, self.description, str(global_time)
         )
-        self.plans = generate(prompt_meta.format(prompt), self.use_openai)
+        self.plans = generate(prompt_meta.format(prompt), self.llm_engine)
 
     def execute_action(
         self, other_agents, location, global_time, town_areas, prompt_meta
@@ -124,7 +124,7 @@ class Agent:
         )
 
         prompt += "What do you do in the next hour? Use at most 10 words to explain."
-        action = generate(prompt_meta.format(prompt), self.use_openai)
+        action = generate(prompt_meta.format(prompt), self.llm_engine)
         return action
 
     def update_memories(self, other_agents, global_time, action_results):
@@ -198,7 +198,7 @@ class Agent:
                 str(global_time),
                 memory,
             )
-            res = generate(prompt_meta.format(prompt), self.use_openai)
+            res = generate(prompt_meta.format(prompt), self.llm_engine)
             rating = get_rating(res)
             max_attempts = 2
             current_attempt = 0
@@ -238,7 +238,7 @@ class Agent:
                 locations.get_location(self.location),
                 location.name,
             )
-            res = generate(prompt_meta.format(prompt), self.use_openai)
+            res = generate(prompt_meta.format(prompt), self.llm_engine)
             rating = get_rating(res)
             max_attempts = 2
             current_attempt = 0

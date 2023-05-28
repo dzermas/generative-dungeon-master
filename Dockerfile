@@ -1,4 +1,4 @@
-FROM python:3.10.0-slim-bullseye
+FROM  python:3.8-slim-buster
 
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive \
@@ -20,7 +20,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="${VIRTUAL_ENV}/bin:${PATH}"
 
-# Set up SSH:
+# Set up SSH in case we need to pull private repos:
 ARG SSH_PRIVATE_KEY
 RUN mkdir /root/.ssh/
 RUN echo "${SSH_PRIVATE_KEY}" > /root/.ssh/id_rsa
@@ -33,23 +33,19 @@ WORKDIR /app
 # Install dependencies:
 COPY pyproject.toml .
 COPY poetry.lock .
-RUN poetry install --no-root
+COPY config ./config
+COPY notebooks ./notebooks
+COPY generativedm generativedm
 
 # Install package:
-COPY generativedm generativedm
 RUN poetry install
-
-# Copy files for pre-commit:
-COPY .pre-commit-config.yaml .flake8 ./
-COPY .git .git
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
 
 ARG VERSION
 ENV VERSION=$VERSION
 
 # Don't buffer Python stdout (logs)
 ENV PYTHONUNBUFFERED 1
-ENV ECS_AVAILABLE_LOGGING_DRIVERS="awslogs"
 
 # Set entrypoint:
-ENTRYPOINT [ "generativedm" ]
-CMD [ "--help" ]
+CMD ["/bin/bash"]

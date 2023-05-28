@@ -2244,5 +2244,5 @@ pytorch = ["torch"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.8,<3.10"
-content-hash = "46aaa2ec5915443ad1e301c274a0ebb621a28493bdd0824021d4391d6e2b951d"
+python-versions = ">=3.8,<=3.12"
+content-hash = "5528756193e700c6debcdccd9193bb5fd7ef645c071af5b2ac6a1696fdd08d45"

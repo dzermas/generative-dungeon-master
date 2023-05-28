@@ -3,6 +3,7 @@ import os
 import re
 
 import openai
+import torch
 from dotenv import load_dotenv
 from transformers import pipeline
 
@@ -13,21 +14,20 @@ load_dotenv("config/.env")
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-def generate(prompt, use_openai=True):
+def generate(prompt, llm_engine):
     """
     Generate a text completion for a given prompt using either the OpenAI GPT-3 API or the Hugging Face GPT-3 model.
 
     Args:
     - prompt (str): The text prompt to generate a completion for.
-    - use_openai (bool): A boolean flag indicating whether to use the OpenAI API (True) or the Hugging Face GPT-3 model (False).
+    - llm_engine (LLMEngine): A boolean flag indicating whether to use the OpenAI API (True) or the Hugging Face GPT-3 model (False).
 
     Returns:
     - str: The generated text completion.
     """
-    if use_openai:
-        model_engine = "text-davinci-002"
+    if llm_engine.use_openai:
         response = openai.Completion.create(
-            engine=model_engine,
+            engine=llm_engine.model_engine,
             prompt=prompt,
             max_tokens=1024,
             n=1,
@@ -39,8 +39,9 @@ def generate(prompt, use_openai=True):
         return message.strip()
 
     else:
+        torch_device = "cuda" if torch.cuda.is_available() else "cpu"
         hf_generator = pipeline(
-            "text-generation", model="EleutherAI/gpt-neo-1.3B", device=0
+            "text-generation", model=llm_engine.model_engine, device=torch_device
         )
         output = hf_generator(prompt, max_length=len(prompt) + 128, do_sample=True)
         out = output[0]["generated_text"]

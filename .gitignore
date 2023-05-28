@@ -138,3 +138,6 @@ config/.env
 
 # vscode
 .vscode/*
+
+# Logs
+logs/*
