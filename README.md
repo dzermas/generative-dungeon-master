@@ -63,6 +63,20 @@ Use the docker image with
 docker run --rm -ti gdm-image poetry run generativedm generate-world
 ```
 
+Note that since the text-generation model needs to be downloaded, using docker will have to download the model each time the image is opened. Maybe you should avoid using the `--rm` and have a persistent container.
+
 ## LLM Models
 
 The code can either use an OpenAI account for inference with ChatGPT4, or HuggingFace for local inference with an open network like Alpaca. The OpenAI account charges real money for inferences and it can start getting expensive especially when the code base is not efficient enough. By default, the `use_openai` parameter in the `main.py` script is set to `False`. The HuggingFace model is downloaded locally in the `~/.cache/hub/` folder the first time it is called by the `generate()` function and every subsequent use happens by loading that local model. We can experiment with other models based on the inference capabilities of the local machines. The model selection is exposed for easy experimentation.
+
+## Resources
+
+Look into the Alpaca models, an open source small model that is supposed to rival ChatGPT3:
+
+https://medium.com/@martin-thissen/llama-alpaca-chatgpt-on-your-local-computer-tutorial-17adda704c23
+
+https://github.com/cocktailpeanut/dalai
+
+HuggingFace has a lot of models we can try before we need to train and finetune anything:
+
+https://huggingface.co/models?pipeline_tag=text-generation&sort=downloads
