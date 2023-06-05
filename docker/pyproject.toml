@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "generativedm"
+version = "0.0.0"
+description = "Tools for the post-processing of the keypoint segmentation results."
+authors = []
+
+[tool.poetry.dependencies]
+python = ">=3.8,<=3.12"
+click = "*"
+transformers = "*"
+networkx = "*"
+sentencepiece = "*"
+openai = "*"
+python-dotenv = "*"
+torch = {version = "*", optional = true}
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pre_commit = "*"
+
+[tool.poetry.scripts]
+generativedm = "generativedm.cli:cli"
+
+[tool.poetry.extras]
+pytorch = ["torch"]
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.23.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
