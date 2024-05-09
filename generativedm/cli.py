@@ -1,12 +1,15 @@
 """CLI entrypoints through ``click`` bindings."""
 import logging
+import json
 from datetime import datetime
 from pathlib import Path
 
 import click
 
 import generativedm
+from generativedm.llm_engine import LLMEngine
 from generativedm.simulate import simulate
+from generativedm.pkg_utils.text_generation import generate
 
 
 @click.group()
@@ -52,7 +55,7 @@ def version():
     required=False,
     type=str,
     help="Name of the text generation model",
-    default="EleutherAI/gpt-j-6b",
+    default="mistralai/Mistral-7B-Instruct-v0.2",
 )
 def generate_world(config_file, simulation_days, use_openai, model_engine):
     """Execute the Phandalin demo."""
@@ -68,6 +71,37 @@ def generate_world(config_file, simulation_days, use_openai, model_engine):
         use_openai=use_openai,
         model_engine=model_engine,
     )
+
+
+@cli.command()
+@click.option(
+    "--prompt_file",
+    required=False,
+    type=str,
+    help="Path to the world initialization configuration file",
+    default="config/prompt_file.json",
+)
+@click.option(
+    "--model_engine",
+    required=False,
+    type=str,
+    help="Name of the text generation model",
+    default="mistralai/Mistral-7B-Instruct-v0.2",
+)
+def generate_text(prompt_file, model_engine):
+    """Execute the Phandalin demo."""
+    logger = logging.getLogger(__name__)
+    logger.info("Starting simulation...")
+    logger.info(f"Using prompt file: {prompt_file}")
+    logger.info(f"Using model engine: {model_engine}")
+    with open(prompt_file) as f:
+        json_data = json.load(f)
+    llm_engine = LLMEngine(use_openai=False, model_engine=model_engine)
+    response = generate(
+        prompt=json_data,
+        llm_engine=llm_engine,
+    )
+    print(response)
 
 
 if __name__ == "__main__":

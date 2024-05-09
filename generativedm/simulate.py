@@ -16,7 +16,7 @@ def simulate(
     config_file: str,
     simulation_days: int = 10,
     use_openai: bool = False,
-    model_engine: str = "declare-lab/flan-alpaca-xl",
+    model_engine: str = "deepseek-ai/DeepSeek-V2-Chat",
 ):
     """Simulate NPCs.
 
@@ -24,7 +24,7 @@ def simulate(
         config_file (str): Path to the configuration file for the world initialization.
         simulation_days (int, optional): Number of days to simulate. Defaults to 10.
         use_openai (bool, optional): Whether to use OpenAI or not. Defaults to False.
-        model_engine (str, optional): Hugging Face text generation model name. Defaults to "declare-lab/flan-alpaca-xl".
+        model_engine (str, optional): Hugging Face text generation model name. Defaults to "deepseek-ai/DeepSeek-V2-Chat".
     """
     # Set default value for prompt_meta if not defined elsewhere
     prompt_meta = "### Instruction:\n{}\n### Response:"
@@ -182,7 +182,7 @@ def simulate(
             f"----------------------- SUMMARY FOR simulation_day {simulation_day} -----------------------"
         )
 
-        logger.info(summarize_simulation(log_output=log_output))
+        logger.info(summarize_simulation(log_output=log_output, llm_engine=llm_engine))
 
         whole_simulation_output += log_output
 

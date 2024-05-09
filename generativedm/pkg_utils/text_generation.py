@@ -1,11 +1,10 @@
 """Text interaction with OpenAI API and Hugging Face models.""" ""
 import os
 import re
+import torch 
 
 import openai
-import torch
 from dotenv import load_dotenv
-from transformers import pipeline
 
 # Load environment variables from .env file
 load_dotenv("config/.env")
@@ -20,7 +19,7 @@ def generate(prompt, llm_engine):
 
     Args:
     - prompt (str): The text prompt to generate a completion for.
-    - llm_engine (LLMEngine): A boolean flag indicating whether to use the OpenAI API (True) or the Hugging Face GPT-3 model (False).
+    - llm_engine (LLMEngine): Object with all the information of the model to perform inference.
 
     Returns:
     - str: The generated text completion.
@@ -34,22 +33,16 @@ def generate(prompt, llm_engine):
             stop=None,
             temperature=0.5,
         )
-
         message = response.choices[0].text
         return message.strip()
-
     else:
-        torch_device = "cuda" if torch.cuda.is_available() else "cpu"
-        hf_generator = pipeline(
-            "text-generation", model=llm_engine.model_engine, device=torch_device
-        )
-        output = hf_generator(prompt, max_length=len(prompt) + 128, do_sample=True)
-        out = output[0]["generated_text"]
-        if "### Response:" in out:
-            out = out.split("### Response:")[1]
-        if "### Instruction:" in out:
-            out = out.split("### Instruction:")[0]
-        return out.strip()
+        inputs = llm_engine.tokenizer.apply_chat_template(
+            prompt, 
+            return_tensors="pt"
+        ).to(llm_engine.torch_device)
+        outputs = llm_engine.model.generate(inputs, max_new_tokens=1000, do_sample=True)
+        out = llm_engine.tokenizer.batch_decode(outputs[:, inputs.shape[-1]:], skip_special_tokens=True)[0]
+        return out
 
 
 def get_rating(x):
@@ -70,7 +63,7 @@ def get_rating(x):
 
 
 # Summarize simulation loop with OpenAI GPT-4
-def summarize_simulation(log_output):
+def summarize_simulation(log_output, llm_engine):
     """Summarize the simulation loop.
 
     Args:
@@ -79,6 +72,10 @@ def summarize_simulation(log_output):
     Returns:
         str: The summary of the simulation loop.
     """
-    prompt = f"Summarize the simulation loop:\n\n{log_output}"
-    response = generate(prompt)
+    prompt = [
+        {
+            "role": "user", "content": f"Summarize the simulation loop:\n\n{log_output}"
+        }
+    ]
+    response = generate(prompt, llm_engine)
     return response

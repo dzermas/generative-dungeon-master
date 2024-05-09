@@ -75,10 +75,14 @@ class Agent:
         prompt_meta : str
             The prompt used to generate the plan.
         """
-        prompt = "You are {}. The following is your description: {} You just woke up. What is your goal for today? Write it down in an hourly basis, starting at {}:00. Write only one or two very short sentences. Be very brief. Use at most 50 words.".format(
-            self.name, self.description, str(global_time)
-        )
-        self.plans = generate(prompt_meta.format(prompt), self.llm_engine)
+        prompt = [
+            {
+                "role": "user", "content": "You are {}. The following is your description: {} You just woke up. What is your goal for today? Write it down in an hourly basis, starting at {}:00. Write only one or two very short sentences. Be very brief. Use at most 50 words.".format(
+                    self.name, self.description, str(global_time)
+                )
+            }
+        ]
+        self.plans = generate(prompt, self.llm_engine)
 
     def execute_action(
         self, other_agents, location, global_time, town_areas, prompt_meta
@@ -105,26 +109,30 @@ class Agent:
         """
         people = [agent.name for agent in other_agents if agent.location == location]
 
-        prompt = "You are {}. Your plans are: {}. You are currently in {} with the following description: {}. It is currently {}:00. The following people are in this area: {}. You can interact with them.".format(
-            self.name,
-            self.plans,
-            location.name,
-            town_areas[location.name],
-            str(global_time),
-            ", ".join(people),
-        )
+        prompt = [
+            {
+                "role": "user", "content": "You are {}. Your plans are: {}. You are currently in {} with the following description: {}. It is currently {}:00. The following people are in this area: {}. You can interact with them.".format(
+                    self.name,
+                    self.plans,
+                    location.name,
+                    town_areas[location.name],
+                    str(global_time),
+                    ", ".join(people),
+                )
+            }
+        ]
 
         people_description = [
             f"{agent.name}: {agent.description}"
             for agent in other_agents
             if agent.location == location.name
         ]
-        prompt += " You know the following about people: " + ". ".join(
+        prompt[0]["content"] += " You know the following about people: " + ". ".join(
             people_description
         )
 
-        prompt += "What do you do in the next hour? Use at most 10 words to explain."
-        action = generate(prompt_meta.format(prompt), self.llm_engine)
+        prompt[0]["content"] += "What do you do in the next hour? Use at most 10 words to explain."
+        action = generate(prompt, self.llm_engine)
         return action
 
     def update_memories(self, other_agents, global_time, action_results):
@@ -191,14 +199,18 @@ class Agent:
         """
         memory_ratings = []
         for memory in self.memories:
-            prompt = "You are {}. Your plans are: {}. You are currently in {}. It is currently {}:00. You observe the following: {}. Give a rating, between 1 and 5, to how much you care about this.".format(
-                self.name,
-                self.plans,
-                locations.get_location(self.location),
-                str(global_time),
-                memory,
-            )
-            res = generate(prompt_meta.format(prompt), self.llm_engine)
+            prompt = [
+                {
+                    "role": "user", "content": "You are {}. Your plans are: {}. You are currently in {}. It is currently {}:00. You observe the following: {}. Give a rating, between 1 and 5, to how much you care about this.".format(
+                        self.name,
+                        self.plans,
+                        locations.get_location(self.location),
+                        str(global_time),
+                        memory,
+                    )
+                }
+            ]
+            res = generate(prompt, self.llm_engine)
             rating = get_rating(res)
             max_attempts = 2
             current_attempt = 0
@@ -231,14 +243,18 @@ class Agent:
         """
         place_ratings = []
         for location in locations.locations.values():
-            prompt = "You are {}. Your plans are: {}. It is currently {}:00. You are currently at {}. How likely are you to go to {} next?".format(
-                self.name,
-                self.plans,
-                str(global_time),
-                locations.get_location(self.location),
-                location.name,
-            )
-            res = generate(prompt_meta.format(prompt), self.llm_engine)
+            prompt = [
+                {
+                    "role": "user", "content": "You are {}. Your plans are: {}. It is currently {}:00. You are currently at {}. How likely are you to go to {} next?".format(
+                        self.name,
+                        self.plans,
+                        str(global_time),
+                        locations.get_location(self.location),
+                        location.name,
+                    )
+                }
+            ]
+            res = generate(prompt, self.llm_engine)
             rating = get_rating(res)
             max_attempts = 2
             current_attempt = 0
