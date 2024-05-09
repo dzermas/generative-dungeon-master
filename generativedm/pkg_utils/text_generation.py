@@ -1,7 +1,6 @@
 """Text interaction with OpenAI API and Hugging Face models.""" ""
 import os
 import re
-import torch 
 
 import openai
 from dotenv import load_dotenv
@@ -37,11 +36,12 @@ def generate(prompt, llm_engine):
         return message.strip()
     else:
         inputs = llm_engine.tokenizer.apply_chat_template(
-            prompt, 
-            return_tensors="pt"
+            prompt, return_tensors="pt"
         ).to(llm_engine.torch_device)
         outputs = llm_engine.model.generate(inputs, max_new_tokens=1000, do_sample=True)
-        out = llm_engine.tokenizer.batch_decode(outputs[:, inputs.shape[-1]:], skip_special_tokens=True)[0]
+        out = llm_engine.tokenizer.batch_decode(
+            outputs[:, inputs.shape[-1] :], skip_special_tokens=True
+        )[0]
         return out
 
 
@@ -73,9 +73,7 @@ def summarize_simulation(log_output, llm_engine):
         str: The summary of the simulation loop.
     """
     prompt = [
-        {
-            "role": "user", "content": f"Summarize the simulation loop:\n\n{log_output}"
-        }
+        {"role": "user", "content": f"Summarize the simulation loop:\n\n{log_output}"}
     ]
     response = generate(prompt, llm_engine)
     return response

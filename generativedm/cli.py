@@ -1,6 +1,6 @@
 """CLI entrypoints through ``click`` bindings."""
-import logging
 import json
+import logging
 from datetime import datetime
 from pathlib import Path
 
@@ -8,8 +8,8 @@ import click
 
 import generativedm
 from generativedm.llm_engine import LLMEngine
-from generativedm.simulate import simulate
 from generativedm.pkg_utils.text_generation import generate
+from generativedm.simulate import simulate
 
 
 @click.group()

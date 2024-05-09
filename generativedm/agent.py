@@ -77,9 +77,10 @@ class Agent:
         """
         prompt = [
             {
-                "role": "user", "content": "You are {}. The following is your description: {} You just woke up. What is your goal for today? Write it down in an hourly basis, starting at {}:00. Write only one or two very short sentences. Be very brief. Use at most 50 words.".format(
+                "role": "user",
+                "content": "You are {}. The following is your description: {} You just woke up. What is your goal for today? Write it down in an hourly basis, starting at {}:00. Write only one or two very short sentences. Be very brief. Use at most 50 words.".format(
                     self.name, self.description, str(global_time)
-                )
+                ),
             }
         ]
         self.plans = generate(prompt, self.llm_engine)
@@ -111,14 +112,15 @@ class Agent:
 
         prompt = [
             {
-                "role": "user", "content": "You are {}. Your plans are: {}. You are currently in {} with the following description: {}. It is currently {}:00. The following people are in this area: {}. You can interact with them.".format(
+                "role": "user",
+                "content": "You are {}. Your plans are: {}. You are currently in {} with the following description: {}. It is currently {}:00. The following people are in this area: {}. You can interact with them.".format(
                     self.name,
                     self.plans,
                     location.name,
                     town_areas[location.name],
                     str(global_time),
                     ", ".join(people),
-                )
+                ),
             }
         ]
 
@@ -131,7 +133,9 @@ class Agent:
             people_description
         )
 
-        prompt[0]["content"] += "What do you do in the next hour? Use at most 10 words to explain."
+        prompt[0][
+            "content"
+        ] += "What do you do in the next hour? Use at most 10 words to explain."
         action = generate(prompt, self.llm_engine)
         return action
 
@@ -201,13 +205,14 @@ class Agent:
         for memory in self.memories:
             prompt = [
                 {
-                    "role": "user", "content": "You are {}. Your plans are: {}. You are currently in {}. It is currently {}:00. You observe the following: {}. Give a rating, between 1 and 5, to how much you care about this.".format(
+                    "role": "user",
+                    "content": "You are {}. Your plans are: {}. You are currently in {}. It is currently {}:00. You observe the following: {}. Give a rating, between 1 and 5, to how much you care about this.".format(
                         self.name,
                         self.plans,
                         locations.get_location(self.location),
                         str(global_time),
                         memory,
-                    )
+                    ),
                 }
             ]
             res = generate(prompt, self.llm_engine)
@@ -245,13 +250,14 @@ class Agent:
         for location in locations.locations.values():
             prompt = [
                 {
-                    "role": "user", "content": "You are {}. Your plans are: {}. It is currently {}:00. You are currently at {}. How likely are you to go to {} next?".format(
+                    "role": "user",
+                    "content": "You are {}. Your plans are: {}. It is currently {}:00. You are currently at {}. How likely are you to go to {} next?".format(
                         self.name,
                         self.plans,
                         str(global_time),
                         locations.get_location(self.location),
                         location.name,
-                    )
+                    ),
                 }
             ]
             res = generate(prompt, self.llm_engine)
